@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package products;
+
+service ProductsService {
+  rpc FindAll (Empty) returns (ProductList) {}
+  rpc FindOne (ProductById) returns (Product) {}
+  rpc Create (CreateProductRequest) returns (Product) {}
+  rpc Update (UpdateProductRequest) returns (Product) {}
+  rpc Remove (ProductById) returns (Empty) {}
+}
+
+message Empty {}
+
+message Product {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  int32 quantity = 5;
+  string category = 6;
+  bool isActive = 7;
+}
+
+message ProductList {
+  repeated Product products = 1;
+}
+
+message ProductById {
+  string id = 1;
+}
+
+message CreateProductRequest {
+  string name = 1;
+  string description = 2;
+  double price = 3;
+  int32 quantity = 4;
+  string category = 5;
+  bool isActive = 6;
+}
+
+message UpdateProductRequest {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  int32 quantity = 5;
+  string category = 6;
+  bool isActive = 7;
+}
