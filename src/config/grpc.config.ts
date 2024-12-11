@@ -6,7 +6,7 @@ export const productsGrpcOptions: ClientOptions = {
   options: {
     package: 'products',
     protoPath: join(__dirname, '../protos/products.proto'),
-    url: 'localhost:5000', // Products service gRPC port
+    url: 'products-service:5000', // Products service gRPC port
   },
 };
 
@@ -15,6 +15,6 @@ export const ordersGrpcOptions: ClientOptions = {
   options: {
     package: 'orders',
     protoPath: join(__dirname, '../protos/orders.proto'),
-    url: 'localhost:5001', // Orders service gRPC port
+    url: 'orders-service:5001', // Orders service gRPC port
   },
 };
