@@ -1,0 +1,130 @@
+version: '3.8'
+
+services:
+  api-gateway-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: test
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - NODE_ENV=test
+      - PORT=3000
+      - JWT_SECRET=test-secret
+      - USERS_SERVICE_URL=users-service-test:50051
+      - PRODUCTS_SERVICE_URL=products-service-test:50052
+      - ORDERS_SERVICE_URL=orders-service-test:50053
+    ports:
+      - "3000:3000"
+    depends_on:
+      - users-service-test
+      - products-service-test
+      - orders-service-test
+    networks:
+      - test-network
+
+  users-service-test:
+    build:
+      context: ../users-microservice
+      dockerfile: Dockerfile.dev
+      target: development
+    volumes:
+      - ../users-microservice:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run test:e2e
+    environment:
+      - NODE_ENV=test
+      - PORT=50051
+      - POSTGRES_HOST=postgres-test
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=test_user
+      - POSTGRES_PASSWORD=test_password
+      - POSTGRES_DB=users_test
+    ports:
+      - "50051:50051"
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    networks:
+      - test-network
+
+  products-service-test:
+    build:
+      context: ../products-microservice
+      dockerfile: Dockerfile.dev
+      target: development
+    volumes:
+      - ../products-microservice:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run test:e2e
+    environment:
+      - NODE_ENV=test
+      - PORT=50052
+      - MONGODB_URI=mongodb://mongodb-test:27017/products-test
+    ports:
+      - "50052:50052"
+    depends_on:
+      - mongodb-test
+    networks:
+      - test-network
+
+  orders-service-test:
+    build:
+      context: ../orders-microservice
+      dockerfile: Dockerfile.dev
+      target: development
+    volumes:
+      - ../orders-microservice:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run test:e2e
+    environment:
+      - NODE_ENV=test
+      - PORT=50053
+      - DB_HOST=postgres-test
+      - DB_PORT=5432
+      - DB_USERNAME=test_user
+      - DB_PASSWORD=test_password
+      - DB_DATABASE=orders_test
+      - USERS_SERVICE_URL=users-service-test:50051
+      - PRODUCTS_SERVICE_URL=products-service-test:50052
+    ports:
+      - "50053:50053"
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    networks:
+      - test-network
+
+  postgres-test:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_MULTIPLE_DATABASES: users_test,orders_test
+    volumes:
+      - ./docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - test-network
+
+  mongodb-test:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      MONGODB_DATABASE: products-test
+    command: mongod --quiet --logpath /dev/null
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    driver: bridge

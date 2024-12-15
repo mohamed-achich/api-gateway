@@ -1,5 +1,5 @@
 export class User {
-  id: number;
+  id: string;
   username: string;
   password: string;
   roles: string[];
@@ -9,8 +9,9 @@ export class User {
 }
 
 export interface UserSession {
-  userId: number;
+  userId: string;
   username: string;
   roles: string[];
   exp: number;
+  accessToken: string;
 }
