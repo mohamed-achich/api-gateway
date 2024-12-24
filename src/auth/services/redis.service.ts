@@ -89,16 +89,6 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     return exists === 1;
   }
 
-  // Rate limiting
-  async incrementRequestCount(key: string): Promise<number> {
-    const count = await this.redisClient.incr(key);
-    // Set expiration for 1 minute if this is the first request
-    if (count === 1) {
-      await this.redisClient.expire(key, 60);
-    }
-    return count;
-  }
-
   // Cache management
   async set(key: string, value: string, expiration?: number): Promise<void> {
     if (expiration) {
