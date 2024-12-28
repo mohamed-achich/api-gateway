@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards, Request, Body, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, UseGuards, Request, Body, UnauthorizedException, UseFilters } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { Public } from './decorators/public.decorator';
@@ -6,15 +6,25 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Tokens } from './interfaces/token.interface';
+import { GrpcExceptionFilter } from '../filters/grpc-exception.filter';
+import { CreateUserRequest } from '../protos/users';
 
 @Controller('auth')
+@UseFilters(GrpcExceptionFilter)
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Public()
   @Post('register')
   async register(@Body() registerDto: RegisterDto): Promise<Tokens> {
-    return this.authService.register(registerDto);
+    const createUserRequest: CreateUserRequest = {
+      username: registerDto.username,
+      password: registerDto.password,
+      email: registerDto.email,
+      firstName: registerDto.firstName,
+      lastName: registerDto.lastName,
+    };
+    return this.authService.register(createUserRequest);
   }
 
   @Public()
