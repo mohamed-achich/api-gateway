@@ -1,10 +1,12 @@
-
-
 ## API Gateway
 
-# API Gateway Service
+[![CI/CD Pipeline](https://github.com/mohamed-achich/api-gateway/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/mohamed-achich/api-gateway/actions)
 
-The API Gateway serves as the entry point for all client requests in our e-commerce microservices architecture. It handles routing, authentication, and communication with other microservices.
+Part of the [E-commerce Platform](https://github.com/mohamed-achich/ecommerce-deployment) microservices architecture.
+
+## Overview
+
+The API Gateway serves as the main entry point for the e-commerce microservices platform. It handles authentication, request routing, and communication with internal microservices using gRPC.
 
 ## Features
 
@@ -14,8 +16,104 @@ The API Gateway serves as the entry point for all client requests in our e-comme
 - JWT token management
 - gRPC communication with microservices
 - Error handling and request validation
+- Request/Response transformation
+- Service discovery
+- API documentation with Swagger
 
-## API Endpoints
+## Technical Stack
+
+- **Framework**: NestJS
+- **Language**: TypeScript
+- **Cache**: Redis
+- **Communication**: REST, gRPC
+- **Documentation**: Swagger/OpenAPI
+- **Testing**: Jest
+- **CI/CD**: GitHub Actions
+
+## Architecture
+
+The API Gateway implements a layered architecture:
+
+1. **Controllers**: Handle HTTP requests and response formatting
+2. **Guards**: Implement authentication and authorization
+3. **Services**: Contain business logic and microservice communication
+4. **DTOs**: Define data transfer objects for validation
+5. **Interceptors**: Handle cross-cutting concerns
+
+## Error Handling
+
+The service implements global error handling for:
+- Validation errors
+- Authentication errors
+- Authorization errors
+- Service unavailability
+- Rate limiting
+- Generic errors
+
+## Security Features
+
+- JWT-based authentication
+- Rate limiting
+- Request validation
+- CORS protection
+- Helmet security headers
+- Token refresh mechanism
+- Token blacklisting
+
+## Authentication Flow
+
+### User Authentication
+1. Client sends authentication request to API Gateway
+2. API Gateway forwards credentials to Users Microservice via gRPC
+3. Users Microservice validates credentials and returns user data
+4. API Gateway generates JWT tokens (access + refresh) and stores session in Redis
+5. Tokens are returned to client
+
+### Service-to-Service Authentication
+1. Each microservice has a unique service token for inter-service communication
+2. Service tokens are validated by the Users Microservice
+3. API Gateway acts as the authentication middleware for all service-to-service calls
+4. Service authentication uses the `ValidateServiceToken` gRPC endpoint
+
+### Security Implementation
+- Password hashing is handled exclusively by Users Microservice using scrypt
+- JWT tokens are generated and validated by API Gateway
+- Redis stores refresh tokens and session data
+- Service tokens are short-lived (1 hour) and scope-limited
+
+### Authentication Endpoints
+- POST `/auth/login` - User login
+- POST `/auth/register` - User registration
+- POST `/auth/refresh` - Refresh access token
+- POST `/auth/logout` - User logout
+- POST `/auth/service-token` - Generate service token (internal use)
+
+### Microservices Communication
+1. Users Microservice:
+   - Handles user management and password hashing
+   - Validates user credentials
+   - Validates service tokens
+   - Exposes gRPC endpoints for auth operations
+
+2. API Gateway:
+   - Generates and validates JWT tokens
+   - Manages user sessions
+   - Routes requests to appropriate microservices
+   - Handles service-to-service authentication
+
+### Security Considerations
+- Passwords are never stored or hashed outside Users Microservice
+- All inter-service communication is authenticated
+- Refresh tokens are stored in Redis with expiration
+- Service tokens have limited scope and short lifetime
+
+## Related Services
+- [Users Service](https://github.com/mohamed-achich/users-microservice) - User Management Service
+- [Orders Service](https://github.com/mohamed-achich/orders-microservice) - Order Management Service
+- [Products Service](https://github.com/mohamed-achich/products-microservice) - Product Catalog Service
+- [E-commerce Deployment](https://github.com/mohamed-achich/ecommerce-deployment) - Infrastructure and Deployment
+
+## API Documentation
 
 ### Authentication Endpoints
 
@@ -173,95 +271,3 @@ npm run test:e2e
 
 # Test coverage
 npm run test:cov
-```
-
-## Architecture
-
-The API Gateway implements a layered architecture:
-
-1. **Controllers**: Handle HTTP requests and response formatting
-2. **Guards**: Implement authentication and authorization
-3. **Services**: Contain business logic and microservice communication
-4. **DTOs**: Define data transfer objects for validation
-5. **Interceptors**: Handle cross-cutting concerns
-
-## Error Handling
-
-The service implements global error handling for:
-- Validation errors
-- Authentication errors
-- Authorization errors
-- Service unavailability
-- Rate limiting
-- Generic errors
-
-## Security Features
-
-- JWT-based authentication
-- Rate limiting
-- Request validation
-- CORS protection
-- Helmet security headers
-- Token refresh mechanism
-- Token blacklisting
-
-## Authentication Flow
-
-### User Authentication
-1. Client sends authentication request to API Gateway
-2. API Gateway forwards credentials to Users Microservice via gRPC
-3. Users Microservice validates credentials and returns user data
-4. API Gateway generates JWT tokens (access + refresh) and stores session in Redis
-5. Tokens are returned to client
-
-### Service-to-Service Authentication
-1. Each microservice has a unique service token for inter-service communication
-2. Service tokens are validated by the Users Microservice
-3. API Gateway acts as the authentication middleware for all service-to-service calls
-4. Service authentication uses the `ValidateServiceToken` gRPC endpoint
-
-### Security Implementation
-- Password hashing is handled exclusively by Users Microservice using scrypt
-- JWT tokens are generated and validated by API Gateway
-- Redis stores refresh tokens and session data
-- Service tokens are short-lived (1 hour) and scope-limited
-
-### Authentication Endpoints
-- POST `/auth/login` - User login
-- POST `/auth/register` - User registration
-- POST `/auth/refresh` - Refresh access token
-- POST `/auth/logout` - User logout
-- POST `/auth/service-token` - Generate service token (internal use)
-
-### Microservices Communication
-1. Users Microservice:
-   - Handles user management and password hashing
-   - Validates user credentials
-   - Validates service tokens
-   - Exposes gRPC endpoints for auth operations
-
-2. API Gateway:
-   - Generates and validates JWT tokens
-   - Manages user sessions
-   - Routes requests to appropriate microservices
-   - Handles service-to-service authentication
-
-### Security Considerations
-- Passwords are never stored or hashed outside Users Microservice
-- All inter-service communication is authenticated
-- Refresh tokens are stored in Redis with expiration
-- Service tokens have limited scope and short lifetime
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
