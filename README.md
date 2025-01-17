@@ -1,12 +1,31 @@
-## API Gateway
+# API Gateway Demo
 
 [![CI/CD Pipeline](https://github.com/mohamed-achich/api-gateway/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/mohamed-achich/api-gateway/actions)
 
-Part of the [E-commerce Platform](https://github.com/mohamed-achich/ecommerce-deployment) microservices architecture.
+## About This Demo Project
 
-## Overview
+This API Gateway is part of a demonstration project showcasing my implementation of a scalable microservices architecture. While it uses an e-commerce context, the focus is on demonstrating clean code, proper system design, and microservices best practices rather than implementing a full e-commerce solution.
 
-The API Gateway serves as the main entry point for the e-commerce microservices platform. It handles authentication, request routing, and communication with internal microservices using gRPC.
+### Related Components
+
+- **[E-commerce Platform](https://github.com/mohamed-achich/ecommerce-deployment)** - Main deployment and infrastructure demo
+- **[Users Service](https://github.com/mohamed-achich/users-microservice)** - Basic user management
+- **[Products Service](https://github.com/mohamed-achich/products-microservice)** - Simple product catalog
+- **[Orders Service](https://github.com/mohamed-achich/orders-microservice)** - Basic order processing
+
+## Service Overview
+
+This gateway demonstrates API management patterns using NestJS. It showcases routing, authentication, and service communication implementations in a microservices architecture.
+
+### Implementation Highlights
+
+- Basic request routing
+- Simple authentication flow
+- Rate limiting example
+- Service discovery demonstration
+- Error handling patterns
+- Basic request transformation
+- Swagger documentation setup
 
 ## Features
 
